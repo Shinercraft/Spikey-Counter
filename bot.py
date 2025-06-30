@@ -5,7 +5,7 @@ import json
 import asyncio
 import time
 
-TOKEN = "MTM4OTIzODY3MzUwOTE4NzU5Ng.Gi3ntk.bP2Ic0hp5E02d0y4EubI4_BzBmC3DF2W7j_CMY"
+TOKEN = BOT_TOKEN
 
 intents = discord.Intents.default()
 intents.message_content = True
