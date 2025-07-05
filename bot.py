@@ -4,8 +4,12 @@ import os
 import json
 import asyncio
 import time
+from dotenv import load_dotenv # Import load_dotenv
 
-TOKEN = BOT_TOKEN
+# Load environment variables from .env file
+load_dotenv() 
+
+TOKEN = os.getenv("DISCORD_SECRET")
 
 intents = discord.Intents.default()
 intents.message_content = True
