@@ -4,9 +4,9 @@ import os
 import json
 import asyncio
 import time
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
 
-load_dotenv() 
+load_dotenv()
 
 TOKEN = os.getenv("DISCORD_SECRET")
 
@@ -141,6 +141,25 @@ async def lb(ctx, limit: int = 10):
     await ctx.send(response)
 
 @bot.command()
+async def lb_delay(ctx, limit: int = 10):
+    if not delayed_message_counts:
+        await ctx.send("No delayed message counts recorded yet.")
+        return
+
+    sorted_counts = sorted(delayed_message_counts.items(), key=lambda item: item[1], reverse=True)
+    response = f"⏱️ **Top Delayed Message Senders ({COOLDOWN_SECONDS}s Cooldown):**\n"
+    for i, (member_id, count) in enumerate(sorted_counts[:limit]):
+        try:
+            member = await bot.fetch_user(int(member_id))
+            response += f"{i+1}. {member.display_name}: {count} messages\n"
+        except discord.NotFound:
+            response += f"{i+1}. Unknown User (ID: {member_id}): {count} messages\n"
+        except Exception as e:
+            response += f"{i+1}. Error fetching user (ID: {member_id}): {count} messages ({e})\n"
+
+    await ctx.send(response)
+
+@bot.command()
 async def messages(ctx):
     member_id = str(ctx.author.id)
     count = message_counts.get(member_id, 0)
@@ -149,14 +168,17 @@ async def messages(ctx):
 
 if __name__ == '__main__':
     try:
-        if TOKEN == "YOUR_BOT_TOKEN_HERE" or not TOKEN:
-            print("\nERROR: Please replace 'YOUR_BOT_TOKEN_HERE' with your actual bot token.")
+        # Note: Glitch typically handles .env files automatically when you use load_dotenv()
+        # So the explicit check for "YOUR_BOT_TOKEN_HERE" might not be necessary if using .env
+        # However, keeping it for clarity if the .env setup is not correctly done.
+        if not TOKEN: # Check if TOKEN is empty after loading from .env
+            print("\nERROR: Bot token not found. Please ensure your .env file exists and contains 'DISCORD_SECRET=YOUR_BOT_TOKEN'.")
             print("Go to https://discord.com/developers/applications, select your bot, and copy its token.")
             print("Also, ensure 'Message Content Intent' and 'Server Members Intent' are enabled under 'Bot' tab.")
         else:
             bot.run(TOKEN)
     except discord.errors.LoginFailure:
-        print("\nERROR: Invalid bot token. Please double-check your token. It might be old or incorrect.")
+        print("\nERROR: Invalid bot token. Please double-check your token in your .env file. It might be old or incorrect.")
     except discord.errors.PrivilegedIntentsRequired:
         print("\nERROR: Privileged Intents are not enabled. Go to https://discord.com/developers/applications,")
         print("select your bot, go to the 'Bot' tab, and enable 'Message Content Intent' and 'Server Members Intent'.")
