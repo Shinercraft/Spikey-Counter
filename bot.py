@@ -14,7 +14,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='?', intents=intents)
 
 PRIMARY_COUNTS_FILE = 'message_counts.json'
 BACKUP_COUNTS_FILE = 'messages.txt'
