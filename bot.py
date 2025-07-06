@@ -4,9 +4,8 @@ import os
 import json
 import asyncio
 import time
-from dotenv import load_dotenv # Import load_dotenv
+from dotenv import load_dotenv 
 
-# Load environment variables from .env file
 load_dotenv() 
 
 TOKEN = os.getenv("DISCORD_SECRET")
