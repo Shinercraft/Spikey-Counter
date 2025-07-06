@@ -107,17 +107,30 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+    # ADD THIS LINE:
+    print(f"DEBUG: Message received: Channel='{message.channel}', Author='{message.author}', Content='{message.content}'")
+
     if message.author.bot:
         return
 
     member_id = str(message.author.id)
     current_time = time.time()
 
+    print(f"DEBUG: Message from {message.author.display_name} (ID: {member_id}). Total count before: {message_counts.get(member_id, 0)}")
     message_counts[member_id] = message_counts.get(member_id, 0) + 1
+    print(f"DEBUG: Total count after: {message_counts[member_id]}")
 
-    if member_id not in last_message_times or (current_time - last_message_times[member_id]) >= COOLDOWN_SECONDS:
+    last_time_for_user = last_message_times.get(member_id, 0)
+    time_since_last_message = current_time - last_time_for_user
+    print(f"DEBUG: Last delayed message time for {member_id}: {last_time_for_user} (Time since: {time_since_last_message:.2f}s)")
+
+    if member_id not in last_message_times or time_since_last_message >= COOLDOWN_SECONDS:
+        print(f"DEBUG: Incrementing DELAYED count for {member_id}.")
         delayed_message_counts[member_id] = delayed_message_counts.get(member_id, 0) + 1
         last_message_times[member_id] = current_time
+        print(f"DEBUG: Delayed count after: {delayed_message_counts[member_id]}")
+    else:
+        print(f"DEBUG: Delayed count NOT incremented for {member_id}. Still in cooldown.")
 
     await bot.process_commands(message)
 
@@ -142,8 +155,13 @@ async def lb(ctx, limit: int = 10):
 
 @bot.command()
 async def lb_delay(ctx, limit: int = 10):
+    # KEEP THESE DEBUG PRINTS
+    print(f"DEBUG: !lb-delay command received by {ctx.author.display_name}.")
+    print(f"DEBUG: Current delayed_message_counts: {delayed_message_counts}")
+
     if not delayed_message_counts:
         await ctx.send("No delayed message counts recorded yet.")
+        print(f"DEBUG: Sent 'No delayed message counts recorded yet.'")
         return
 
     sorted_counts = sorted(delayed_message_counts.items(), key=lambda item: item[1], reverse=True)
@@ -158,6 +176,7 @@ async def lb_delay(ctx, limit: int = 10):
             response += f"{i+1}. Error fetching user (ID: {member_id}): {count} messages ({e})\n"
 
     await ctx.send(response)
+    print(f"DEBUG: Sent !lb-delay response successfully.")
 
 @bot.command()
 async def messages(ctx):
@@ -168,10 +187,7 @@ async def messages(ctx):
 
 if __name__ == '__main__':
     try:
-        # Note: Glitch typically handles .env files automatically when you use load_dotenv()
-        # So the explicit check for "YOUR_BOT_TOKEN_HERE" might not be necessary if using .env
-        # However, keeping it for clarity if the .env setup is not correctly done.
-        if not TOKEN: # Check if TOKEN is empty after loading from .env
+        if not TOKEN:
             print("\nERROR: Bot token not found. Please ensure your .env file exists and contains 'DISCORD_SECRET=YOUR_BOT_TOKEN'.")
             print("Go to https://discord.com/developers/applications, select your bot, and copy its token.")
             print("Also, ensure 'Message Content Intent' and 'Server Members Intent' are enabled under 'Bot' tab.")
