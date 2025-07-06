@@ -107,7 +107,6 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    # ADD THIS LINE:
     print(f"DEBUG: Message received: Channel='{message.channel}', Author='{message.author}', Content='{message.content}'")
 
     if message.author.bot:
@@ -153,9 +152,8 @@ async def lb(ctx, limit: int = 10):
 
     await ctx.send(response)
 
-@bot.command()
+@bot.command(name='lb-delay')
 async def lb_delay(ctx, limit: int = 10):
-    # KEEP THESE DEBUG PRINTS
     print(f"DEBUG: !lb-delay command received by {ctx.author.display_name}.")
     print(f"DEBUG: Current delayed_message_counts: {delayed_message_counts}")
 
@@ -182,7 +180,8 @@ async def lb_delay(ctx, limit: int = 10):
 async def messages(ctx):
     member_id = str(ctx.author.id)
     count = message_counts.get(member_id, 0)
-    await ctx.send(f"Hey {ctx.author.display_name}! You have sent {count} total messages.")
+    # --- CHANGED THIS LINE TO MENTION THE USER ---
+    await ctx.send(f"Hey {ctx.author.mention}! You have sent {count} total messages.")
 
 
 if __name__ == '__main__':
