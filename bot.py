@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-TOKEN = os.getenv("DISCORD_SECRET")
+TOKEN = os.getenv("DISCORD_SECRET") # heyo
 
 intents = discord.Intents.default()
 intents.message_content = True
